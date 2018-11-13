@@ -19,6 +19,7 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
             new KAL\PlatformBundle\KALPlatformBundle(),
+            new Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle()
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
