@@ -1,28 +1,32 @@
 {% extends '@KALPlatform/base.html.twig' %}
 
-{% block title %}Création d'une annonce{% endblock %}
+{% block title %}Edition d'une annonce{% endblock %}
 
 {% form_theme form _self %}
 
 {% block body %}
-
     <div class="container">
-        <h1>Créer une nouvelle annonce</h1>
+        <h1>Modifier l'annonce : {{ ad.title }}</h1>
 
         {{ form_start(form) }}
 
         {{ form_widget(form) }}
 
-        {{ form_row(form.images) }}
-        
-        <button type="submit" class="btn btn-primary">Créer la nouvelle annonce</button>
+        <button type="submit" class="btn btn-primary">Modifier</button>
 
         {{ form_end(form) }}
 
-        
     </div>
+{% endblock %}
+
+
+{% block javascripts %}
+
+<script src="/js/ad.js"></script>
 
 {% endblock %}
+
+
 
 {% block _kal_platformbundle_ad_images_entry_row %}
     {{ form_widget(form) }}
@@ -57,11 +61,4 @@
             </div>
         </div> 
     </div>
-{% endblock %}
-
-
-{% block javascripts %}
-
-<script src="/js/ad.js"></script>
-
 {% endblock %}

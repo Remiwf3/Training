@@ -3,6 +3,7 @@
 namespace KAL\PlatformBundle\Controller;
 
 use KAL\PlatformBundle\Entity\Ad;
+use KAL\PlatformBundle\Entity\Image;
 use KAL\PlatformBundle\Form\AnnonceType;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -49,8 +50,14 @@ class AdController extends Controller
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()){
-
             $manager = $this->getDoctrine()->getManager();
+
+            foreach($ad->getImages() as $image){
+                $image->setAd($ad);
+                $manager->persist($image);
+            }
+
+           
 
             $manager->persist($ad);
             $manager->flush();
@@ -64,6 +71,49 @@ class AdController extends Controller
 
         return $this->render('@KALPlatform/ad/new.html.twig', [
             'form'   =>    $form->createView()
+        ]);
+    }
+
+    /**
+     * Permet d'afficher le formulaire d'édition d'une annonce
+     * 
+     * @Route("ads/{slug}/edit", name="ads_edit")
+     *
+     * @param [type] $slug
+     * @return Response
+     */
+    public function editAction($slug, Request $request){
+        $repo = $this->getDoctrine()->getRepository(Ad::class);
+
+        $ad = $repo->findOneBySlug($slug);
+
+        $form = $this->createForm(AnnonceType::class, $ad);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){
+            $manager = $this->getDoctrine()->getManager();
+
+            foreach($ad->getImages() as $image){
+                $image->setAd($ad);
+                $manager->persist($image);
+            }
+
+           
+
+            $manager->persist($ad);
+            $manager->flush();
+
+
+            return $this->redirectToRoute('ads_show', [
+                'slug'    =>    $ad->getSlug()
+            ]);
+
+        }
+
+        return $this->render('@KALPlatform/ad/edit.html.twig', [
+            'form'     =>     $form->createView(),
+            'ad'       =>     $ad
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace KAL\PlatformBundle\Entity;
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Doctrine\Common\Collections\ArrayCollection;
 
 
 /**
@@ -75,7 +76,33 @@ class Ad
     private $rooms;
 
     /**
-     * Permet d'initialiser le slug
+     * @ORM\Column(name="createdAt", type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Image", mappedBy="ad", orphanRemoval=true)
+     */
+    private $images;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="ads")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $author;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Comment", mappedBy="ad", orphanRemoval=true)
+     */
+    private $comments;
+
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+    }
+
+    /**
+     * Permet d'initialiser le slug à la création de l'annonce
      * 
      * @ORM\PrePersist
      * @ORM\PreUpdate
@@ -87,6 +114,37 @@ class Ad
             $slugify= new Slugify();
             $this->slug= $slugify->slugify($this->title) ;
         }
+    }
+
+    /**
+     * Callback appelé à chaque fois que l'on crée une annonce
+     * 
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     *
+     * @return void
+     */
+    public function prePersist(){
+        if(empty($this->createdAt)){
+            $this->createdAt = new \DateTime();
+        }
+    }
+
+    /**
+     * Permet de calculer la moyenne des notes
+     *
+     * @return float
+     */
+    public function getAvgRatings(){
+        //Calculer la somme des notations
+        $sum = array_reduce($this->comments->toArray(), function($total, $comment){
+            return $total + $comment->getRating();
+        }, 0);
+
+        //Faire la division pour avoir la moyenne
+        if(count($this->comments) > 0) return $sum / count($this->comments);
+
+        return 0;
     }
 
 
@@ -267,5 +325,120 @@ class Ad
     {
         return $this->rooms;
     }
-}
 
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     *
+     * @return Ad
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Add image
+     *
+     * @param \KAL\PlatformBundle\Entity\image $image
+     *
+     * @return Ad
+     */
+    public function addImage(\KAL\PlatformBundle\Entity\image $image)
+    {
+        $this->images[] = $image;
+
+        return $this;
+    }
+
+    /**
+     * Remove image
+     *
+     * @param \KAL\PlatformBundle\Entity\image $image
+     */
+    public function removeImage(\KAL\PlatformBundle\Entity\image $image)
+    {
+        $this->images->removeElement($image);
+    }
+
+    /**
+     * Get images
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getImages()
+    {
+        return $this->images;
+    }
+
+    /**
+     * Set author
+     *
+     * @param \KAL\PlatformBundle\Entity\User $author
+     *
+     * @return Ad
+     */
+    public function setAuthor(\KAL\PlatformBundle\Entity\User $author)
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * Get author
+     *
+     * @return \KAL\PlatformBundle\Entity\User
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
+    /**
+     * Add comment
+     *
+     * @param \App\Entity\Comment $comment
+     *
+     * @return Ad
+     */
+    public function addComment(\App\Entity\Comment $comment)
+    {
+        $this->comments[] = $comment;
+
+        return $this;
+    }
+
+    /**
+     * Remove comment
+     *
+     * @param \App\Entity\Comment $comment
+     */
+    public function removeComment(\App\Entity\Comment $comment)
+    {
+        $this->comments->removeElement($comment);
+    }
+
+    /**
+     * Get comments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getComments()
+    {
+        return $this->comments;
+    }
+}

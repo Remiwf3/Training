@@ -2,7 +2,7 @@
 
 namespace KAL\PlatformBundle\Form;
 
-use App\Form\ImageType;
+use KAL\PlatformBundle\Form\ImageType;
 use Symfony\Component\Form\AbstractType;
 use KAL\PlatformBundle\Form\ApplicationType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -28,11 +28,11 @@ class AnnonceType extends ApplicationType
                 ->add('content', TextareaType::class, $this->getConfiguration("Description détaillée", "Description qui donne vraiment envie de venir chez vous !"))   
                 ->add('rooms', IntegerType::class, $this->getConfiguration("Nombre de chambres", "Nombre de chambres disponnibles"))
                 ->add('price', MoneyType::class, $this->getConfiguration("Prix par nuit", "Prix recherché") )
-                // ->add('images', CollectionType::class, [
-                //     'entry_type'   =>  ImageType::class,
-                //     'allow_add'     =>   true,
-                //     'allow_delete'  =>   true
-        //])
+                ->add('images', CollectionType::class, [
+                    'entry_type'   =>  ImageType::class,
+                    'allow_add'     =>   true,
+                    'allow_delete'  =>   true
+        ])
             ;
     }
     
